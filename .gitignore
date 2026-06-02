@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Streamlit
+.streamlit/
+
+# Environment variables
+.env
+.env.*
+
+# PostgreSQL data files (if any local dev)
+*.sql
+*.pgsql
+
+# OS files
+Thumbs.db
+Desktop.ini
