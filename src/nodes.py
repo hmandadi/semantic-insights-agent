@@ -1,28 +1,57 @@
-"""LangGraph node definitions.
+"""
+LangGraph node definitions.
 
-Each node represents a step in the workflow (e.g., generate prompt,
-call LLM, translate to SQL). The MVP includes only placeholder functions
-that return ``TODO`` strings.
+Each node accepts AgentState and returns AgentState.
 """
 
-from .state import AgentState
+from src.state import AgentState
+from src.llm_service import LLMService
+from src.db import execute_query
 
 
-def generate_prompt(state: AgentState) -> AgentState:
-    """Create a prompt for the LLM based on the user query.
-
-    TODO: Implement actual prompt templating.
+def sql_generator_node(state: AgentState) -> AgentState:
     """
-    # Placeholder – in a real implementation you would build a prompt string.
-    state.context = {"prompt": f"Translate to SQL: {state.user_query}"}
+    Generate SQL from natural language question.
+    """
+
+    question = state["question"]
+    semantic_context = state["semantic_context"]
+
+    llm = LLMService()
+
+    generated_sql = llm.generate_sql(
+        question=question,
+        semantic_context=str(semantic_context)
+    )
+
+    state["generated_sql"] = generated_sql
+
     return state
 
 
-def call_llm(state: AgentState) -> AgentState:
-    """Invoke the LLM to generate a SQL query.
-
-    TODO: Replace with actual OpenAI API call.
+def sql_executor_node(state: AgentState) -> AgentState:
     """
-    # Placeholder response.
-    state.sql_query = "SELECT * FROM placeholder_table;"
+    Execute SQL against PostgreSQL.
+    """
+
+    sql = state["generated_sql"]
+
+    result_df = execute_query(sql)
+
+    state["query_result"] = result_df.to_dict(
+        orient="records"
+    )
+
+    return state
+
+
+def insight_node(state: AgentState) -> AgentState:
+    """
+    Convert query results into a human-readable answer.
+    """
+
+    state["answer"] = str(
+        state["query_result"]
+    )
+
     return state
