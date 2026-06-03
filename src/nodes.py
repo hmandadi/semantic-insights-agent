@@ -59,7 +59,7 @@ def _format_semantic_context(manifest: dict) -> str:
         for dim_name, dim_def in dimensions.items():
             table = dim_def.get("table", "") if isinstance(dim_def, dict) else ""
             column = dim_def.get("column", "") if isinstance(dim_def, dict) else ""
-            biz_name = dim_def.get("business_name", dim_name) if isinstance(dim_def, dict) else dim_name
+            biz_name = dim_def.get("business_name", dim_name) if isinstance(dim_def, dict) else ""
             lines.append(f"  - {biz_name}: {table}.{column}")
 
     # Top-level relationships
@@ -111,7 +111,6 @@ def sql_executor_node(state: AgentState) -> AgentState:
     state["query_result"] = result_df.to_dict(
         orient="records"
     )
-
     return state
 
 
@@ -123,28 +122,11 @@ def insight_node(state: AgentState) -> AgentState:
     question = state["question"]
     results = state["query_result"]
 
-    # Format revenue values before sending to LLM
-    formatted_results = []
-
-    for row in results:
-
-        formatted_row = row.copy()
-
-        if "revenue" in formatted_row:
-            try:
-                formatted_row["revenue"] = (
-                    f"${float(formatted_row['revenue']):,.2f}"
-                )
-            except (ValueError, TypeError):
-                pass
-
-        formatted_results.append(formatted_row)
-
     llm = LLMService()
 
     insight = llm.generate_insight(
         question=question,
-        results=str(formatted_results)
+        results=str(results)
     )
 
     state["answer"] = insight

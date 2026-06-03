@@ -53,8 +53,9 @@ Query Results:
 Rules:
 
 - revenue values represent currency in USD.
-- Format revenue values using:
-  $123,456.78
+- Keep revenue values as numeric decimals in query results.
+- Do NOT add '$' symbols or comma formatting in query results.
+- Currency formatting should only be applied in the UI layer.
 
 - Explain findings in business language.
 - Mention key observations.
