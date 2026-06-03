@@ -119,3 +119,7 @@ class SemanticService:
     def list_dimensions(self) -> List[str]:
         """Return a list of all dimension names defined in the manifest."""
         return list(self._get_section("dimensions").keys())
+
+    def get_manifest(self) -> Dict[str, Any]:
+        """Return the full manifest dictionary."""
+        return self._manifest

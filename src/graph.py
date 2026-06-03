@@ -1,25 +1,35 @@
 """LangGraph orchestration.
 
 The ``graph`` module wires the individual node functions into a workflow.
-For the MVP we provide a simple ``run`` function that executes the placeholder
-nodes sequentially.
 """
 
-from .state import AgentState
-from .nodes import generate_prompt, call_llm
+from langgraph.graph import StateGraph, END
+
+from src.state import AgentState
+from src.nodes import sql_generator_node, sql_executor_node, insight_node
 
 
-def run(user_query: str) -> AgentState:
-    """Execute the LangGraph workflow for a given user query.
+def build_graph():
+    """Build and compile the LangGraph workflow.
 
-    Steps (placeholder):
-    1. Initialise ``AgentState`` with the user query.
-    2. Generate a prompt.
-    3. Call the LLM (mock).
+    Flow:
+        START -> sql_generator -> sql_executor -> insight -> END
 
-    Returns the final ``AgentState`` containing the generated SQL.
+    Returns:
+        Compiled StateGraph ready for execution.
     """
-    state = AgentState(user_query=user_query)
-    state = generate_prompt(state)
-    state = call_llm(state)
-    return state
+    workflow = StateGraph(AgentState)
+
+    # Add nodes
+    workflow.add_node("sql_generator", sql_generator_node)
+    workflow.add_node("sql_executor", sql_executor_node)
+    workflow.add_node("insight", insight_node)
+
+    # Define edges
+    workflow.set_entry_point("sql_generator")
+    workflow.add_edge("sql_generator", "sql_executor")
+    workflow.add_edge("sql_executor", "insight")
+    workflow.add_edge("insight", END)
+
+    # Compile and return
+    return workflow.compile()

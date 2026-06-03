@@ -8,7 +8,7 @@ provided semantic context and question, and returns the raw SQL string.
 The implementation follows the requirements:
 * Uses ``langchain_openai`` and ``python-dotenv``.
 * Exposes a ``LLMService`` class with a ``generate_sql`` method.
-* Utilises the latest GPT‑4 model (``gpt-4o`` if available, otherwise falls back
+* Utilises the latest GPT-4 model (``gpt-4o`` if available, otherwise falls back
   to ``gpt-4``).
 * Handles exceptions and strips any markdown formatting that may be returned by
   the model.
@@ -26,8 +26,8 @@ from langchain_openai import ChatOpenAI
 # Load environment variables from .env (project root)
 load_dotenv()
 
-# Import the prompt template
-from .prompts import SQL_GENERATION_PROMPT
+# Import the prompt templates
+from .prompts import SQL_GENERATION_PROMPT, INSIGHT_PROMPT
 
 
 def _strip_markdown(sql: str) -> str:
@@ -38,7 +38,7 @@ def _strip_markdown(sql: str) -> str:
     """
     # Remove leading/trailing whitespace
     sql = sql.strip()
-    # Strip fenced code blocks ```` ```sql ... ``` ````
+    # Strip fenced code blocks ```sql ... ```
     fenced_pattern = r"^```(?:sql)?\n?(.*?\n?)```$"
     match = re.search(fenced_pattern, sql, re.DOTALL | re.IGNORECASE)
     if match:
@@ -101,3 +101,29 @@ class LLMService:
             # Re‑raise with a clearer message while preserving the original
             # exception context for debugging.
             raise RuntimeError(f"Failed to generate SQL: {exc}") from exc
+
+    def generate_insight(self, question: str, results: str) -> str:
+        """Generate a concise business summary from query results.
+
+        Parameters
+        ----------
+        question:
+            The original natural‑language question that prompted the query.
+        results:
+            The query results as a string, to be analyzed for business insights.
+
+        Returns
+        -------
+        str
+            A concise business summary with key findings and observations.
+        """
+        try:
+            prompt = INSIGHT_PROMPT.format(
+                question=question,
+                results=results,
+            )
+            response = self.client.invoke(prompt)
+            insight: str = getattr(response, "content", str(response))
+            return insight.strip()
+        except Exception as exc:  # pragma: no cover – generic safety net
+            raise RuntimeError(f"Failed to generate insight: {exc}") from exc

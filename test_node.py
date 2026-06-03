@@ -1,6 +1,7 @@
 from src.semantic_service import SemanticService
 from src.nodes import sql_generator_node
 
+
 semantic_service = SemanticService()
 
 state = {

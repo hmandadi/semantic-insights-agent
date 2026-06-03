@@ -25,11 +25,36 @@ Placeholders:
 # Prompt used by the LLM to generate a PostgreSQL query from a natural language
 # question, respecting the semantic manifest.
 SQL_GENERATION_PROMPT = (
-    "You are an expert SQL generator. Use only the tables, columns, and metrics"
-    " defined in the following semantic context. Generate a valid PostgreSQL"
-    " query that answers the question. Return **only** the SQL statement,"
-    " without any markdown or explanation.\n\n"
+    "You are an expert PostgreSQL SQL generator. Your task is to generate a valid"
+    " PostgreSQL SELECT query that answers the user's question.\n\n"
+    "CRITICAL RULES:\n"
+    "1. Use ONLY the table names exactly as listed in the semantic context below.\n"
+    "2. Use ONLY the column names exactly as listed in the semantic context below.\n"
+    "3. Do NOT invent or guess table or column names.\n"
+    "4. Use the relationships defined in the semantic context to JOIN tables when"
+    "   the question involves columns from multiple tables.\n"
+    "5. Use the metric expressions (e.g., SUM(fact_sales.revenue)) when the question"
+    "   asks for aggregated values.\n"
+    "6. Return ONLY the SQL statement — no markdown, no code fences, no explanations.\n\n"
     "Semantic Context:\n{semantic_context}\n\n"
     "Question: {question}\n"
     "SQL Query:"
 )
+
+INSIGHT_PROMPT = """
+You are a senior business analyst.
+
+Question:
+{question}
+
+Query Results:
+{results}
+
+Requirements:
+- Explain findings in business language.
+- Mention trends and key observations.
+- Do not mention SQL.
+- Do not output JSON.
+
+Business Summary:
+"""
