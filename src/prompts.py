@@ -50,11 +50,16 @@ Question:
 Query Results:
 {results}
 
-Requirements:
+Rules:
+
+- revenue values represent currency in USD.
+- Format revenue values using:
+  $123,456.78
+
 - Explain findings in business language.
-- Mention trends and key observations.
-- Do not mention SQL.
+- Mention key observations.
 - Do not output JSON.
+- Do not output SQL.
 
 Business Summary:
 """

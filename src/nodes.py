@@ -123,11 +123,28 @@ def insight_node(state: AgentState) -> AgentState:
     question = state["question"]
     results = state["query_result"]
 
+    # Format revenue values before sending to LLM
+    formatted_results = []
+
+    for row in results:
+
+        formatted_row = row.copy()
+
+        if "revenue" in formatted_row:
+            try:
+                formatted_row["revenue"] = (
+                    f"${float(formatted_row['revenue']):,.2f}"
+                )
+            except (ValueError, TypeError):
+                pass
+
+        formatted_results.append(formatted_row)
+
     llm = LLMService()
 
     insight = llm.generate_insight(
         question=question,
-        results=str(results)
+        results=str(formatted_results)
     )
 
     state["answer"] = insight
