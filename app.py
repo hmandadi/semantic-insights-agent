@@ -31,10 +31,36 @@ st.set_page_config(
 )
 
 st.title("📊 Semantic Insights Agent")
-st.caption(
-    "Ask business questions in natural language and receive insights instantly."
+st.markdown(
+    """
+    Enterprise AI Analytics Assistant that converts natural language
+    business questions into SQL, executes queries against enterprise
+    data, generates business insights, and visualizes results.
+    """
 )
+st.markdown("### Try an Example")
 
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Revenue by Region"):
+        st.session_state["question"] = "Show revenue by region"
+
+    if st.button("Top Customers"):
+        st.session_state["question"] = "Show top 5 customers by revenue"
+
+with col2:
+    if st.button("Revenue by Product"):
+        st.session_state["question"] = "Show revenue by product"
+
+    if st.button("Quantity by Region"):
+        st.session_state["question"] = "Show quantity sold by region"
+
+question = st.text_input(
+    "Ask a business question",
+    value=st.session_state.get("question", ""),
+    placeholder="Example: What are the top 5 products by revenue?"
+)
 
 # ==================================================
 # CACHED SERVICES
@@ -52,16 +78,6 @@ def get_visualization_service():
 
 agent = get_agent()
 viz_service = get_visualization_service()
-
-
-# ==================================================
-# USER INPUT
-# ==================================================
-
-question = st.text_input(
-    "Enter your business question",
-    placeholder="Example: What are the top 5 products by revenue?"
-)
 
 df = None
 
@@ -156,7 +172,7 @@ if st.button("Analyze", type="primary"):
             if revenue_col:
                 column_config[revenue_col] = st.column_config.NumberColumn(
                     "Revenue",
-                    format="$%,.2f"
+                    format="%,.2f"
                 )
 
             st.dataframe(
@@ -227,3 +243,20 @@ if st.button("Analyze", type="primary"):
 
         with st.expander("Debug Details"):
             st.code(traceback.format_exc())
+
+st.markdown("---")
+
+st.markdown(
+    """
+    <div style='text-align:center'>
+        <h4>Semantic Insights Agent v1.0</h4>
+        <p>
+            LangGraph | PostgreSQL | Streamlit | Python | LLM
+        </p>
+        <p>
+            Designed & Developed by Harshavardhan Mandadi
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
