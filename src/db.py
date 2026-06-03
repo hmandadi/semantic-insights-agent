@@ -72,6 +72,7 @@ def get_connection() -> psycopg2.extensions.connection:
             dbname=_get_env_var("DB_NAME"),
             user=_get_env_var("DB_USER"),
             password=_get_env_var("DB_PASSWORD"),
+            sslmode="require"
         )
         logger.info("PostgreSQL connection established")
         return conn
