@@ -11,7 +11,8 @@ result = graph.invoke(
         "semantic_context": semantic_service.get_manifest(),
         "generated_sql": "",
         "query_result": [],
-        "answer": ""
+        "answer": "",
+        "conversation_history": []
     }
 )
 

@@ -20,6 +20,7 @@ Placeholders:
     {semantic_context} – a textual description of the available tables,
     columns, and metrics.
     {question} – the natural‑language question supplied by the user.
+    {conversation_history} – recent conversation context for follow-up questions.
 """
 
 # Prompt used by the LLM to generate a PostgreSQL query from a natural language
@@ -36,7 +37,16 @@ SQL_GENERATION_PROMPT = (
     "5. Use the metric expressions (e.g., SUM(fact_sales.revenue)) when the question"
     "   asks for aggregated values.\n"
     "6. Return ONLY the SQL statement — no markdown, no code fences, no explanations.\n\n"
+    "STRICT RULES FOR FOLLOW-UP QUESTIONS:\n"
+    "7. Use ONLY exact table names and column names from semantic_manifest.yaml.\n"
+    "8. Never infer or invent columns such as country, location, geography, sales, amount, etc.\n"
+    "9. For APAC, EMEA, Americas, use dim_region.region_name.\n"
+    "10. Follow-up questions must reuse previous business intent, but SQL must always be"
+    "    regenerated using current semantic manifest.\n"
+    "11. Conversation history provides context only, not schema authority.\n"
+    "12. Semantic manifest is the only source of truth for schema.\n\n"
     "Semantic Context:\n{semantic_context}\n\n"
+    "{conversation_history}"
     "Question: {question}\n"
     "SQL Query:"
 )

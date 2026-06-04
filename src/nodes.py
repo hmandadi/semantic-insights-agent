@@ -84,6 +84,7 @@ def sql_generator_node(state: AgentState) -> AgentState:
 
     question = state["question"]
     semantic_context = state["semantic_context"]
+    conversation_history = state.get("conversation_history", [])
 
     llm = LLMService()
 
@@ -91,7 +92,8 @@ def sql_generator_node(state: AgentState) -> AgentState:
 
     generated_sql = llm.generate_sql(
         question=question,
-        semantic_context=formatted_context
+        semantic_context=formatted_context,
+        conversation_history=conversation_history if conversation_history else None
     )
 
     state["generated_sql"] = generated_sql

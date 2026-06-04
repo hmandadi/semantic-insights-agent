@@ -49,6 +49,39 @@ def _strip_markdown(sql: str) -> str:
     return sql
 
 
+def _format_conversation_history(history: list[dict]) -> str:
+    """Format conversation history into a compact string for the LLM prompt.
+
+    Parameters
+    ----------
+    history:
+        A list of conversation interaction dicts with 'question', 'generated_sql', and 'answer' keys.
+
+    Returns
+    -------
+    str
+        A formatted string for inclusion in the prompt, or empty string if no history.
+    """
+    if not history:
+        return ""
+
+    lines: list[str] = ["\nPrevious Conversation History:\n"]
+    for i, interaction in enumerate(history, 1):
+        question = interaction.get("question", "")
+        sql = interaction.get("generated_sql", "")
+        answer = interaction.get("answer", "")
+        lines.append(f"  {i}. Q: {question}")
+        if sql:
+            lines.append(f"     SQL: {sql}")
+        if answer:
+            # Truncate answer to first line for compactness
+            answer_line = answer.split("\n")[0] if answer else ""
+            lines.append(f"     A: {answer_line}")
+        lines.append("")
+
+    return "".join(lines)
+
+
 class LLMService:
     """
     Service that generates PostgreSQL queries using an OpenAI-compatible API
@@ -71,7 +104,12 @@ class LLMService:
             temperature=0.0,
         )
 
-    def generate_sql(self, question: str, semantic_context: str) -> str:
+    def generate_sql(
+        self,
+        question: str,
+        semantic_context: str,
+        conversation_history: list[dict] | None = None
+    ) -> str:
         """Generate a PostgreSQL query for *question* using *semantic_context*.
 
         Parameters
@@ -81,6 +119,9 @@ class LLMService:
         semantic_context:
             Text describing tables, columns, and metric definitions from the
             semantic manifest.
+        conversation_history:
+            Optional list of previous interactions for follow-up questions.
+            Each dict should have 'question', 'generated_sql', and 'answer' keys.
 
         Returns
         -------
@@ -88,9 +129,15 @@ class LLMService:
             The raw SQL query string, with any markdown removed.
         """
         try:
+            # Format conversation history if provided
+            history_str = ""
+            if conversation_history:
+                history_str = _format_conversation_history(conversation_history)
+
             prompt = SQL_GENERATION_PROMPT.format(
                 semantic_context=semantic_context,
                 question=question,
+                conversation_history=history_str,
             )
             # LangChain expects a list of messages; we use a single user message.
             response = self.client.invoke(prompt)

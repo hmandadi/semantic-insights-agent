@@ -38,6 +38,19 @@ st.markdown(
     data, generates business insights, and visualizes results.
     """
 )
+
+# ==================================================
+# CONVERSATION MEMORY - Initialize session state
+# ==================================================
+
+if "conversation_history" not in st.session_state:
+    st.session_state["conversation_history"] = []
+
+# Clear Conversation button
+if st.button("🗑️ Clear Conversation", type="secondary"):
+    st.session_state["conversation_history"] = []
+    st.rerun()
+
 st.markdown("### Try an Example")
 
 col1, col2 = st.columns(2)
@@ -94,7 +107,10 @@ if st.button("Analyze", type="primary"):
 
     try:
         with st.spinner("Analyzing your question..."):
-            result = agent.run(question)
+            result = agent.run(
+                question=question,
+                conversation_history=st.session_state["conversation_history"]
+            )
 
         generated_sql = result.get("generated_sql", "")
         query_result = result.get("query_result", [])
@@ -237,6 +253,21 @@ if st.button("Analyze", type="primary"):
             st.markdown(answer)
         else:
             st.info("No insight generated.")
+
+        # ==========================================
+        # UPDATE CONVERSATION MEMORY
+        # ==========================================
+
+        st.session_state["conversation_history"].append({
+            "question": question,
+            "generated_sql": generated_sql,
+            "answer": answer
+        })
+
+        # Keep only the latest 5 interactions
+        if len(st.session_state["conversation_history"]) > 5:
+            st.session_state["conversation_history"] = \
+                st.session_state["conversation_history"][-5:]
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")

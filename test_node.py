@@ -9,7 +9,8 @@ state = {
     "semantic_context": semantic_service.load_manifest(),
     "generated_sql": "",
     "query_result": [],
-    "answer": ""
+    "answer": "",
+    "conversation_history": []
 }
 
 updated_state = sql_generator_node(state)

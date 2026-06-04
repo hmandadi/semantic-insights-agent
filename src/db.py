@@ -64,15 +64,29 @@ def get_connection() -> psycopg2.extensions.connection:
     - ``DB_NAME``
     - ``DB_USER``
     - ``DB_PASSWORD``
+    - ``DB_SSLMODE`` (optional, defaults to "disable" for localhost/127.0.0.1,
+      otherwise "require")
     """
+    db_host = _get_env_var("DB_HOST")
+    db_port = os.getenv("DB_PORT", "5432")
+
+    # Determine SSL mode: explicit env var takes precedence
+    db_sslmode = os.getenv("DB_SSLMODE")
+    if db_sslmode is None:
+        # Default based on host: disable for localhost, require for remote
+        if db_host in ("localhost", "127.0.0.1"):
+            db_sslmode = "disable"
+        else:
+            db_sslmode = "require"
+
     try:
         conn = psycopg2.connect(
-            host=_get_env_var("DB_HOST"),
-            port=os.getenv("DB_PORT", "5432"),
+            host=db_host,
+            port=db_port,
             dbname=_get_env_var("DB_NAME"),
             user=_get_env_var("DB_USER"),
             password=_get_env_var("DB_PASSWORD"),
-            sslmode="require"
+            sslmode=db_sslmode
         )
         logger.info("PostgreSQL connection established")
         return conn

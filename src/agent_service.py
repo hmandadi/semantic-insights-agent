@@ -16,11 +16,14 @@ class AgentService:
         self.semantic_service = SemanticService()
         self.graph = build_graph()
 
-    def run(self, question: str) -> dict:
+    def run(self, question: str, conversation_history: list | None = None) -> dict:
         """Execute the agent workflow for a given question.
 
         Args:
             question: The natural language question to process.
+            conversation_history: Optional list of previous interactions for
+                follow-up questions. Each dict should have 'question',
+                'generated_sql', and 'answer' keys.
 
         Returns:
             A dictionary containing:
@@ -28,13 +31,18 @@ class AgentService:
                 - query_result: The results from executing the SQL
                 - answer: The business insight generated from the results
         """
+        # Default to empty list if no history provided
+        if conversation_history is None:
+            conversation_history = []
+
         # Build initial state
         initial_state: AgentState = {
             "question": question,
             "semantic_context": self.semantic_service.get_manifest(),
             "generated_sql": "",
             "query_result": [],
-            "answer": ""
+            "answer": "",
+            "conversation_history": conversation_history
         }
 
         # Invoke LangGraph workflow

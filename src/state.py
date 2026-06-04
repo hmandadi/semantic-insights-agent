@@ -13,3 +13,4 @@ class AgentState(TypedDict):
     generated_sql: str
     query_result: list
     answer: str
+    conversation_history: list[dict]
