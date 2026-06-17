@@ -34,14 +34,4 @@ semantic-insights-agent/
 │   ├── db.py                   # PostgreSQL helper utilities
 │   └── prompts.py              # prompt templates for the LLM
 └── app.py                      # Streamlit entry point
-```
 
-## Future Roadmap
-* Implement semantic manifest schema and validation.
-* Add robust prompt engineering and few‑shot examples.
-* Integrate query governance and audit logging.
-* Containerize the application with Docker.
-* Write unit and integration tests.
-
----
-*This is a scaffold. Business logic should be added in the respective modules.*
