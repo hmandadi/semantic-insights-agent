@@ -1,7 +1,7 @@
 # Semantic Insights Agent
 
 ## Project Overview
-The **Semantic Insights Agent** is an enterprise‑grade semantic analytics prototype. It translates natural‑language business questions into governed SQL queries using a semantic layer, LangGraph orchestration, PostgreSQL, and large language models (LLMs). This repository contains a minimal MVP suitable for learning and portfolio demonstration.
+The **Semantic Insights Agent** is a cloud-hosted conversational AI analytics platform that enables business users to interact with enterprise data using natural language. The solution combines semantic metadata, LangGraph-based agentic workflows, Large Language Models (LLMs), Text-to-SQL orchestration, conversational memory, and PostgreSQL to translate business questions into governed data queries, generate AI-powered insights, and deliver interactive analytics for data-driven decision-making.
 
 ## Architecture Overview
 ```
