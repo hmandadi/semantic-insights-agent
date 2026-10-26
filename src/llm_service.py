@@ -99,6 +99,7 @@ class LLMService:
             )
 
         self.client = ChatOpenAI(
+            model="openai/gpt-4o-mini",
             api_key=api_key,
             base_url=base_url,
             temperature=0.0,
